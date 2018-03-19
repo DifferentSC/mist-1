@@ -333,6 +333,16 @@ public final class MistDriver {
     }
   }
 
+  public final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
+    @Override
+    public void onNext(final FailedEvaluator failedEvaluator) {
+      if (!isMasterRunning.get()) {
+        LOG.log(Level.SEVERE, "Evaluator {0} has failed before master running!");
+        failedEvaluator.getEvaluatorException().printStackTrace();
+      }
+    }
+  }
+
   public final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask runningTask) {
