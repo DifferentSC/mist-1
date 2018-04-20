@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -186,18 +187,24 @@ public final class DefaultCheckpointManagerImpl implements CheckpointManager {
      */
     private final CheckpointManager checkpointManager;
 
+    private final AtomicInteger iteration;
+
     public CheckpointRunner(final GroupMap groupMap,
                             final CheckpointManager checkpointManager) {
       this.groupMap = groupMap;
       this.checkpointManager = checkpointManager;
+      this.iteration = new AtomicInteger(1);
     }
 
     @Override
     public synchronized void run() {
-      // Checkpoint the all registered groups.
+      // Checkpoint all the registered groups.
+      LOG.log(Level.INFO, "Initiating {0}th recovery process...", iteration.getAndIncrement());
       for (final Map.Entry<String, Group> groupEntry : groupMap.entrySet()) {
         final String groupId = groupEntry.getKey();
+        LOG.log(Level.INFO, "Recovery process starts for group {0}", groupId);
         checkpointManager.checkpointGroup(groupId);
+        LOG.log(Level.INFO, "Checkpointing done for group {0}", groupId);
       }
     }
   }
