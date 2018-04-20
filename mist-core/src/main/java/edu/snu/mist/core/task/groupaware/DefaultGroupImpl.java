@@ -335,9 +335,9 @@ final class DefaultGroupImpl implements Group {
     }
     for (final Query query : queryList) {
       final String queryId = query.getId();
-      LOG.log(Level.INFO, "query with id {0} is being checkpointed", new Object[]{queryId});
       queryCheckpointMap.put(queryId,
           getQueryCheckpoint(queryIdConfigDagMap.get(queryId), groupTimestamp));
+      LOG.log(Level.INFO, "query with id {0} is being checkpointed", new Object[]{queryId});
     }
 
     return GroupCheckpoint.newBuilder()

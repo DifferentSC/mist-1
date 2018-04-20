@@ -140,7 +140,7 @@ public final class DefaultCheckpointManagerImpl implements CheckpointManager {
     }
     final CheckpointResult result =
         checkpointStore.checkpointGroupStates(new Tuple<>(groupId, group));
-    LOG.log(Level.INFO, "Checkpoint started for groupId : {0}, result : {1}",
+    LOG.log(Level.INFO, "Checkpoint finished for groupId : {0}, result : {1}",
         new Object[]{groupId, result.getIsSuccess()});
     return result.getIsSuccess();
   }
