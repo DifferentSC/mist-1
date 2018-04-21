@@ -146,18 +146,23 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
       }
       return new ArrayList<>();
     } else {
-      final Set<String> allocatedGroups = new HashSet<>();
-      final double vLoad = taskStatsMap.get(taskHostname).getTaskLoad();
-      final Iterator<Map.Entry<String, GroupStats>> recoveryGroupIterator = recoveryGroups.entrySet().iterator();
-      while (recoveryGroupIterator.hasNext() && vLoad < overloadedTaskThreshold
-          && allocatedGroups.size() < recoveryUnitSize) {
-        final Map.Entry<String, GroupStats> recoveryGroupCandidate = recoveryGroupIterator.next();
-        if (vLoad + recoveryGroupCandidate.getValue().getGroupLoad() < overloadedTaskThreshold) {
-          allocatedGroups.add(recoveryGroupCandidate.getKey());
-          recoveryGroups.remove(recoveryGroupCandidate.getKey());
+      try {
+        final List<String> allocatedGroups = new ArrayList<>();
+        final double vLoad = taskStatsMap.get(taskHostname).getTaskLoad();
+        final Iterator<Map.Entry<String, GroupStats>> recoveryGroupIterator = recoveryGroups.entrySet().iterator();
+        while (recoveryGroupIterator.hasNext() && vLoad < overloadedTaskThreshold
+            && allocatedGroups.size() < recoveryUnitSize) {
+          final Map.Entry<String, GroupStats> recoveryGroupCandidate = recoveryGroupIterator.next();
+          if (vLoad + recoveryGroupCandidate.getValue().getGroupLoad() < overloadedTaskThreshold) {
+            allocatedGroups.add(recoveryGroupCandidate.getKey());
+            recoveryGroups.remove(recoveryGroupCandidate.getKey());
+          }
         }
+        return allocatedGroups;
+      } catch (final ConcurrentModificationException e) {
+        e.printStackTrace();
+        return null;
       }
-      return new ArrayList<>(allocatedGroups);
     }
   }
 
