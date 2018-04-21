@@ -385,7 +385,12 @@ final class DefaultGroupImpl implements Group {
             state = new HashMap<>();
             checkpointTimestamp = 0L;
           } else {
-            state = StateSerializer.serializeStateMap(stateHandler.getOperatorState(checkpointTimestamp));
+            try {
+              state = StateSerializer.serializeStateMap(stateHandler.getOperatorState(checkpointTimestamp));
+            } catch (final RuntimeException e) {
+              e.printStackTrace();
+              LOG.log(Level.SEVERE, "Fatal error occurred while checkpointing!");
+            }
           }
         }
       }
