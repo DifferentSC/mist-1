@@ -114,7 +114,14 @@ public final class DefaultGroupCheckpointStore implements GroupCheckpointStore {
   public CheckpointResult checkpointGroupStates(final Tuple<String, Group> tuple) {
     final String groupId = tuple.getKey();
     final Group group = tuple.getValue();
-    final GroupCheckpoint checkpoint = group.checkpoint();
+    final GroupCheckpoint checkpoint;
+    try {
+      checkpoint = group.checkpoint();
+    } catch (final Exception e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE, "An error occured while getting checkpoints!");
+      return null;
+    }
     try {
       // Write the file.
       final File storedFile = getGroupCheckpointFile(groupId);

@@ -326,7 +326,7 @@ final class DefaultGroupImpl implements Group {
   }
 
   @Override
-  public GroupCheckpoint checkpoint() {
+  public GroupCheckpoint checkpoint() throws Exception {
     final Map<String, QueryCheckpoint> queryCheckpointMap = new HashMap<>();
     final GroupMinimumLatestWatermarkTimeStamp groupTimestamp = new GroupMinimumLatestWatermarkTimeStamp();
 
@@ -351,7 +351,8 @@ final class DefaultGroupImpl implements Group {
    * Get the checkpoint data for the query.
    */
   private QueryCheckpoint getQueryCheckpoint(final DAG<ConfigVertex, MISTEdge> configDag,
-                                             final GroupMinimumLatestWatermarkTimeStamp groupTimestamp) {
+                                             final GroupMinimumLatestWatermarkTimeStamp groupTimestamp)
+      throws Exception {
 
     // Find the minimum of the available checkpoint timestamps for the group.
     // Replaying will start from this timestamp, if this ConfigDag is used for recovery.
@@ -388,8 +389,8 @@ final class DefaultGroupImpl implements Group {
             try {
               state = StateSerializer.serializeStateMap(stateHandler.getOperatorState(checkpointTimestamp));
             } catch (final RuntimeException e) {
-              e.printStackTrace();
               LOG.log(Level.SEVERE, "Fatal error occurred while checkpointing!");
+              throw e;
             }
           }
         }

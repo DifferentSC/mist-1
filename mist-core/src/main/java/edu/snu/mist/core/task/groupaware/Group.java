@@ -172,5 +172,5 @@ public interface Group extends AutoCloseable {
   /**
    * Get a checkpoint of this group.
    */
-  GroupCheckpoint checkpoint();
+  GroupCheckpoint checkpoint() throws Exception;
 }

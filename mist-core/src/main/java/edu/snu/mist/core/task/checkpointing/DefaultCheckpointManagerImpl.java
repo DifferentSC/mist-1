@@ -202,7 +202,7 @@ public final class DefaultCheckpointManagerImpl implements CheckpointManager {
       LOG.log(Level.INFO, "Initiating {0}th recovery process...", iteration.getAndIncrement());
       for (final Map.Entry<String, Group> groupEntry : groupMap.entrySet()) {
         final String groupId = groupEntry.getKey();
-        LOG.log(Level.INFO, "Recovery process starts for group {0}", groupId);
+        LOG.log(Level.INFO, "Checkpointing process starts for group {0}", groupId);
         checkpointManager.checkpointGroup(groupId);
         LOG.log(Level.INFO, "Checkpointing done for group {0}", groupId);
       }
