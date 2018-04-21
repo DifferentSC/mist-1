@@ -56,7 +56,8 @@ public final class StateSerializerTest {
     Assert.assertEquals(testString, serializedMap.get("testString"));
 
     // Deserialize the stateMap.
-    final Map<String, Object> deserializedMap = StateSerializer.deserializeStateMap(serializedMap);
+    final Map<String, Object> deserializedMap = StateSerializer.deserializeStateMap(serializedMap,
+        ClassLoader.getSystemClassLoader());
     final int deserializedInt = (int)deserializedMap.get("testInt");
     final boolean deserializedBoolean = (boolean)deserializedMap.get("testBoolean");
     final long deserializedLong = (long)deserializedMap.get("testLong");
@@ -93,7 +94,8 @@ public final class StateSerializerTest {
 
     // Serialize and deserialize the stateMap.
     final Map<String, Object> serializedStateMap = StateSerializer.serializeStateMap(testStateMap);
-    final Map<String, Object> deserializedStateMap = StateSerializer.deserializeStateMap(serializedStateMap);
+    final Map<String, Object> deserializedStateMap = StateSerializer.deserializeStateMap(serializedStateMap,
+        ClassLoader.getSystemClassLoader());
     final Map<String, Integer> deserializedMap = (Map<String, Integer>)deserializedStateMap.get("testMap");
     final MistWatermarkEvent deserializedWatermarkEvent =
         (MistWatermarkEvent)deserializedStateMap.get("testWatermarkEvent");

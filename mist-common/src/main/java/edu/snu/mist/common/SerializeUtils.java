@@ -31,6 +31,15 @@ public final class SerializeUtils {
     // do nothing
   }
 
+  public static <T> T deserializeFromByteArray(
+      final byte[] byteArray,
+      final ClassLoader classLoader) throws IOException, ClassNotFoundException {
+    final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(byteArray));
+    final T object = (T)ois.readObject();
+    ois.close();
+    return object;
+  }
+
   /**
    * Read the object from Base64 string.
    * @param s serialized object

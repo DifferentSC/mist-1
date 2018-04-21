@@ -15,6 +15,8 @@
  */
 package edu.snu.mist.core.task;
 
+import edu.snu.mist.common.SerializeUtils;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -84,14 +86,15 @@ public final class StateSerializer {
    * @param serializedStateMap
    * @return the deserialized StateMap
    */
-  public static Map<String, Object> deserializeStateMap(final Map<String, Object> serializedStateMap)
+  public static Map<String, Object> deserializeStateMap(final Map<String, Object> serializedStateMap,
+                                                        final ClassLoader classLoader)
       throws RuntimeException {
     final Map<String, Object> result = new HashMap<>();
     for (final Map.Entry<String, Object> mapEntry : serializedStateMap.entrySet()) {
       final Object state = mapEntry.getValue();
       if (state instanceof ByteBuffer) {
         try {
-          final Object deserializedState = deserializeState((ByteBuffer)state);
+          final Object deserializedState = deserializeState((ByteBuffer)state, classLoader);
           result.put(mapEntry.getKey(), deserializedState);
         } catch (final RuntimeException e) {
           throw e;
@@ -108,17 +111,18 @@ public final class StateSerializer {
    * @param byteBuffer
    * @return the deserialized state
    */
-  private static Object deserializeState(final ByteBuffer byteBuffer) throws RuntimeException {
-    final byte[] bytes = new byte[byteBuffer.remaining()];
-    byteBuffer.get(bytes);
+  private static Object deserializeState(final ByteBuffer byteBuffer, final ClassLoader classLoader)
+      throws RuntimeException {
     try {
-      try (final ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
-        try (final ObjectInputStream o = new ObjectInputStream(b)) {
-          return o.readObject();
-        }
+      if (byteBuffer.hasArray()) {
+        return SerializeUtils.deserializeFromByteArray(byteBuffer.array(), classLoader);
+      } else {
+        byteBuffer.rewind();
+        final byte[] bytes = new byte[byteBuffer.remaining()];
+        return SerializeUtils.deserializeFromByteArray(bytes, classLoader);
       }
     } catch (final Exception e) {
-      LOG.log(Level.SEVERE, "An exception occured while deserializing the state.");
+      LOG.log(Level.SEVERE, "An exception occurred while deserializing the state.");
       e.printStackTrace();
       throw new RuntimeException("Error while deserializing the operator state.");
     }
