@@ -152,7 +152,7 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
         recoveryGroupIterator.remove();
       }
     }
-    if (allocatedGroups.size() == 0){
+    if (allocatedGroups.size() == 0) {
       recoveryFinishedTaskRemaining--;
       LOG.log(Level.INFO, "Recovery has been finished for task: {0}", taskHostname);
       if (recoveryFinishedTaskRemaining == 0) {
