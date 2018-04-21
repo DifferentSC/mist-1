@@ -81,6 +81,8 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
    */
   private int recoveryUnitSize;
 
+  private int recoveryFinishedTaskRemaining;
+
   @Inject
   private DistributedRecoveryScheduler(
       final TaskStatsMap taskStatsMap,
@@ -114,6 +116,7 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
           proxyToRecoveryTaskList.add(proxyToTaskMap.get(entry.getKey()));
         }
       }
+      recoveryFinishedTaskRemaining = proxyToRecoveryTaskList.size();
       // Start recovery for all the not overloaded tasks.
       for (final MasterToTaskMessage proxyToTask : proxyToRecoveryTaskList) {
         proxyToTask.startTaskSideRecovery();
@@ -139,7 +142,8 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
   @Override
   public synchronized List<String> pullRecoverableGroups(final String taskHostname) {
     if (recoveryGroups.isEmpty()) {
-      if (isRecoveryOngoing.compareAndSet(true, false)) {
+      recoveryFinishedTaskRemaining--;
+      if (recoveryFinishedTaskRemaining == 0) {
         lock.lock();
         recoveryFinished.signalAll();
         lock.unlock();

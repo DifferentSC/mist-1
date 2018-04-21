@@ -22,6 +22,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * The number of threads used for recovery process.
  */
 @NamedParameter(doc = "The number of threads used for recovery process",
-default_value = "1", short_name = "recovery_thread_num")
+default_value = "4", short_name = "recovery_thread_num")
 public final class RecoveryThreadsNum implements Name<Integer> {
 }
