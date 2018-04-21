@@ -155,7 +155,7 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
           final Map.Entry<String, GroupStats> recoveryGroupCandidate = recoveryGroupIterator.next();
           if (vLoad + recoveryGroupCandidate.getValue().getGroupLoad() < overloadedTaskThreshold) {
             allocatedGroups.add(recoveryGroupCandidate.getKey());
-            recoveryGroups.remove(recoveryGroupCandidate.getKey());
+            recoveryGroupIterator.remove();
           }
         }
         return allocatedGroups;
