@@ -335,8 +335,12 @@ final class DefaultGroupImpl implements Group {
     }
     for (final Query query : queryList) {
       final String queryId = query.getId();
-      queryCheckpointMap.put(queryId,
-          getQueryCheckpoint(queryIdConfigDagMap.get(queryId), groupTimestamp));
+      final QueryCheckpoint queryCheckpoint = getQueryCheckpoint(queryIdConfigDagMap.get(queryId), groupTimestamp);
+      if (queryCheckpoint == null) {
+        // This means that query checkpoint cannot be constructed because the query is now being submitted.
+        continue;
+      }
+      queryCheckpointMap.put(queryId, queryCheckpoint);
       LOG.log(Level.INFO, "query with id {0} is being checkpointed", new Object[]{queryId});
     }
 
@@ -361,6 +365,10 @@ final class DefaultGroupImpl implements Group {
     long latestWatermarkTimestamp = Long.MAX_VALUE;
     for (final ConfigVertex cv : configDag.getVertices()) {
       final ExecutionVertex ev = configExecutionVertexMap.get(cv);
+      if (ev == null) {
+        // ExecutionVerticies are not fully constructed yet.
+        return null;
+      }
       if (ev.getType() == ExecutionVertex.Type.OPERATOR) {
         final Operator op = ((DefaultPhysicalOperatorImpl) ev).getOperator();
         if (op instanceof StateHandler) {
