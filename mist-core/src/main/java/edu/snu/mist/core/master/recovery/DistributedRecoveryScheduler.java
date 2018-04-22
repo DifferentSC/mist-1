@@ -154,7 +154,8 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
     }
     if (allocatedGroups.size() == 0) {
       recoveryFinishedTaskRemaining--;
-      LOG.log(Level.INFO, "Recovery has been finished for task: {0}", taskHostname);
+      LOG.log(Level.INFO, "Recovery has been finished for task: {0}. Remaining task number = {1}",
+          new Object[]{taskHostname, recoveryFinishedTaskRemaining});
       if (recoveryFinishedTaskRemaining == 0) {
         lock.lock();
         recoveryFinished.signalAll();
