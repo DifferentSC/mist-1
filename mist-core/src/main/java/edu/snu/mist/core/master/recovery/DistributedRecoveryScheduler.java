@@ -158,6 +158,7 @@ public final class DistributedRecoveryScheduler implements RecoveryScheduler {
           new Object[]{taskHostname, recoveryFinishedTaskRemaining});
       if (recoveryFinishedTaskRemaining == 0) {
         lock.lock();
+        isRecoveryOngoing.compareAndSet(true, false);
         recoveryFinished.signalAll();
         lock.unlock();
       }
