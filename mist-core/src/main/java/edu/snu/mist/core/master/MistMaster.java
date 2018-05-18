@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,6 +69,11 @@ public final class MistMaster implements Task {
   private boolean masterRecovery;
 
   /**
+   * Is dynamic scaling enabled?
+   */
+  private boolean dynamicScalingEnabled;
+
+  /**
    * The shared application code manager.
    */
   private final ApplicationCodeManager applicationCodeManager;
@@ -83,12 +90,14 @@ public final class MistMaster implements Task {
       final TaskRequestor taskRequestor,
       final MasterSetupFinished masterSetupFinished,
       @Parameter(MasterRecovery.class) final boolean masterRecovery,
-      final ApplicationCodeManager applicationCodeManager) throws IOException {
+      final ApplicationCodeManager applicationCodeManager,
+      @Parameter(DynamicScalingEnabled.class) final Boolean dynamicScalingEnabled) throws IOException {
     this.initialTaskNum = initialTaskNum;
     this.taskRequestor = taskRequestor;
     this.masterSetupFinished = masterSetupFinished;
     this.masterRecovery = masterRecovery;
     this.applicationCodeManager = applicationCodeManager;
+    this.dynamicScalingEnabled = dynamicScalingEnabled;
         // Initialize countdown latch
     this.countDownLatch = new CountDownLatch(1);
     // Launch servers for RPC
@@ -118,6 +127,8 @@ public final class MistMaster implements Task {
       taskRequestor.recoverTaskConn();
       masterSetupFinished.setFinished();
     }
+    // Start dynamic scaling monitoring.
+    final ExecutorService dynamicScalingService = Executors.newSingleThreadScheduledExecutor();
     this.countDownLatch.await();
     // MistMaster has been terminated
     this.driverToMasterServer.close();
