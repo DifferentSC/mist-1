@@ -38,7 +38,7 @@ public final class DefaultDynamicScalingPolicy implements DynamicScalingPolicy {
   /**
    * The shared stats map.
    */
-  final TaskStatsMap taskStatsMap;
+  private final TaskStatsMap taskStatsMap;
 
   /**
    * The maximum number of allocatable task.
@@ -71,12 +71,12 @@ public final class DefaultDynamicScalingPolicy implements DynamicScalingPolicy {
   private final long scaleOutGracePeriod;
 
   /**
-   * The rate of idle tasks for determining idle cluster status.
+   * The rate of idle tasks for determining scaling-in action.
    */
   private final double scaleInIdleTaskRate;
 
   /**
-   * The rate of overloaded tasks for determining
+   * The rate of overloaded tasks for determining scaling-out action.
    */
   private final double scaleOutOverloadedTaskRate;
 

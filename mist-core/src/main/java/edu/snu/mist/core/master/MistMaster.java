@@ -15,10 +15,14 @@
  */
 package edu.snu.mist.core.master;
 
+import edu.snu.mist.core.master.lb.scaling.DefaultDynamicScalingPolicy;
+import edu.snu.mist.core.master.lb.scaling.DynamicScalingPolicy;
+import edu.snu.mist.core.master.lb.scaling.DynamicScalingRunner;
 import edu.snu.mist.core.parameters.*;
 import edu.snu.mist.core.rpc.AvroUtils;
 import edu.snu.mist.formats.avro.*;
 import org.apache.avro.ipc.Server;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
@@ -30,9 +34,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,6 +74,11 @@ public final class MistMaster implements Task {
    * Is dynamic scaling enabled?
    */
   private boolean dynamicScalingEnabled;
+
+  /**
+   * The dynamic scaling in/out period.
+   */
+  private long dynamicScalingPeriod;
 
   /**
    * The shared application code manager.
@@ -127,8 +134,13 @@ public final class MistMaster implements Task {
       taskRequestor.recoverTaskConn();
       masterSetupFinished.setFinished();
     }
-    // Start dynamic scaling monitoring.
-    final ExecutorService dynamicScalingService = Executors.newSingleThreadScheduledExecutor();
+    if (dynamicScalingEnabled) {
+      // Start dynamic scaling monitoring.
+      final ScheduledExecutorService dynamicScalingService = Executors.newSingleThreadScheduledExecutor();
+      final Injector injector = tang.newInjector();
+      final DynamicScalingPolicy policy = injector.getInstance(DefaultDynamicScalingPolicy.class);
+      dynamicScalingService.schedule(new DynamicScalingRunner(policy), dynamicScalingPeriod, TimeUnit.MILLISECONDS);
+    }
     this.countDownLatch.await();
     // MistMaster has been terminated
     this.driverToMasterServer.close();

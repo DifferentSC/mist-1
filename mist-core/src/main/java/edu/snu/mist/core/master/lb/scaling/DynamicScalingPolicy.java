@@ -24,8 +24,8 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 public interface DynamicScalingPolicy {
 
   /**
-   * From the collected metric,
-   * @return
+   * From the collected metric, it gets the necessary scaling action.
+   * @return ScalingAction.
    */
   ScalingAction getScalingAction();
 }

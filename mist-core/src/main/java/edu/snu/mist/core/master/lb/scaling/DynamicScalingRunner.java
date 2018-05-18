@@ -20,7 +20,7 @@ package edu.snu.mist.core.master.lb.scaling;
  */
 public final class DynamicScalingRunner implements Runnable {
 
-  final DynamicScalingPolicy dynamicScalingPolicy;
+  private final DynamicScalingPolicy dynamicScalingPolicy;
 
   public DynamicScalingRunner(
       final DynamicScalingPolicy dynamicScalingPolicy
@@ -30,6 +30,11 @@ public final class DynamicScalingRunner implements Runnable {
 
   @Override
   public void run() {
-
+    final ScalingAction scalingAction = dynamicScalingPolicy.getScalingAction();
+    if (scalingAction == ScalingAction.SCALE_OUT) {
+      // Perform scale-out
+    } else if (scalingAction == ScalingAction.SCALE_IN) {
+      // Perform scale-in
+    }
   }
 }
